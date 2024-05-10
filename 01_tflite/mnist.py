@@ -3,7 +3,7 @@ import struct
 import sys
 import tflite_runtime.interpreter as tflite
 
-def readMnist(filename):
+def read_mnist(filename):
     input_vec = []
     with open(filename, "rb") as file:
         magic_number, number_of_images, n_rows, n_cols = struct.unpack(
@@ -20,7 +20,7 @@ def readMnist(filename):
 
 def main(model_file):
     # Load mnist input image
-    image = readMnist(mnist_input)
+    image = read_mnist(mnist_input)
     print("Input MNIST Image")
     for i in range(28):
         for j in range(28):
