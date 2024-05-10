@@ -27,7 +27,7 @@ def main(model_file):
             print(f"{int(image[i][j]):3d} ", end="")
         print()
 
-    # Make the interpreter with a target model
+    # Make the interpreter with the target model
     interpreter = tflite.Interpreter(model_file)
 
     # Allocate tensor buffers
@@ -36,7 +36,7 @@ def main(model_file):
     # Normalize the input data
     image = image / 255.0
     image = np.expand_dims(image, axis=0)  # Add batch dimension
-    image = np.expand_dims(image, axis=-1)  # Add batch dimension
+    image = np.expand_dims(image, axis=-1)  # Add channel dimension
 
     # Fill input buffers
     input_details = interpreter.get_input_details()[0]

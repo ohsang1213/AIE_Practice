@@ -1,11 +1,11 @@
 import numpy as np
 import struct
+import sys
 from pycoral.adapters import common
 from pycoral.adapters import classify
 from pycoral.utils.edgetpu import make_interpreter
-import sys
 
-def read_Mnist(filename):
+def readMnist(filename):
     input_vec = []
     with open(filename, "rb") as file:
         magic_number, number_of_images, n_rows, n_cols = struct.unpack(
@@ -18,32 +18,30 @@ def read_Mnist(filename):
                     pixel = struct.unpack("B", file.read(1))[0]
                     row.append(pixel)
                 input_vec.append(row)
-    return np.array(input_vec)
+    return np.array(input_vec, dtype=np.float32)
 
 
 def main(model_file):
-    image = read_Mnist(mnist_input)
-
-    # Print the input image
+    # Load mnist input image
+    image = readMnist(mnist_input)
     print("Input MNIST Image")
     for i in range(28):
         for j in range(28):
-            print(f"{image[i][j]:3d} ", end="")
+            print(f"{int(image[i][j]):3d} ", end="")
         print()
 
-    # Initialize the TF interpreter
+    # Make the interpreter with the target model
     interpreter = make_interpreter(model_file)
+
+    # Allocate tensor buffers
     interpreter.allocate_tensors()
 
     # Normalize the input data
     image = image / 255.0
-    image = np.expand_dims(image, axis=-1)
+    image = np.expand_dims(image, axis=0)  # Add batch dimension
+    image = np.expand_dims(image, axis=-1)  # Add channel dimension
 
-    params = common.input_details(interpreter, "quantization_parameters")
-    scale = params["scales"]
-    zero_point = params["zero_points"]
-    if abs(scale) > 1e-5 and abs(zero_point) > 1e-5:
-        image = image / scale + zero_point
+    # Fill input buffers
     common.set_input(interpreter, image)
 
     # Run inference
